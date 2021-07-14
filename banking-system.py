@@ -1,6 +1,11 @@
 import enquiries
 import colorama
 import random
+import sys
+import sqlite3
+
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
 
 class Bank:
 
@@ -18,7 +23,7 @@ class Bank:
         elif choice == 'Log into account':
             print(colorama.Fore.GREEN + "You are successfully logged in")
         else:
-            print(colorama.Fore.RED + "Good Luck! Bye")
+            self.exit_the_program()
 
     def create_user(self):
         random.seed()
@@ -26,12 +31,12 @@ class Bank:
         self.user_luhn_checksum = self.luhn_create_chksum(self.user_card_number)
         self.user_card_number += str(self.user_luhn_checksum)
         self.user_card_pin = str(random.randint(0000, 9999))
-
+        self.create_bank_table()
+        self.data_entry()
         print(self.user_card_number)
         print(self.user_card_pin)
 
-    def login_user(self):
-        pass
+
 
     def luhn_create_chksum(self, card_num):
         def digits_of(n):
@@ -56,6 +61,26 @@ class Bank:
                 return i
 
 
+    def login_user(self):
+        pass
+
+    def create_bank_table(self):
+        cur.execute("""CREATE TABLE IF NOT EXISTS card(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        number TEXT,
+        pin TEXT,
+        balance INTEGER DEFAULT 0);
+        """)
+
+    def data_entry(self):
+        cur.execute("INSERT INTO card (number, pin) VALUES(?, ?)", (self.user_card_number, self.user_card_pin))
+        conn.commit()
+        cur.close()
+
+    def exit_the_program(self):
+        print(colorama.Fore.RED + "Good Luck! Bye")
+        cur.close()
+        sys.exit()
 
 if __name__ == "__main__":
     start_sys = Bank()
