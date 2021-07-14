@@ -3,9 +3,9 @@ import colorama
 import random
 import sys
 import sqlite3
-
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
+
 
 class Bank:
 
@@ -23,7 +23,10 @@ class Bank:
         elif choice == 'Log into account':
             print(colorama.Fore.GREEN + "You are successfully logged in")
         else:
-            self.exit_the_program()
+            if enquiries.confirm('Do you really want to exit the program?'):
+                self.exit_the_program()
+            else:
+                self.greeting()
 
     def create_user(self):
         random.seed()
@@ -33,9 +36,8 @@ class Bank:
         self.user_card_pin = str(random.randint(0000, 9999))
         self.create_bank_table()
         self.data_entry()
-        print(self.user_card_number)
-        print(self.user_card_pin)
-
+        print("Your card number : " + colorama.Fore.YELLOW + self.user_card_number)
+        print(colorama.Style.RESET_ALL + "Your card pin    : " + colorama.Fore.YELLOW +self.user_card_pin)
 
 
     def luhn_create_chksum(self, card_num):
@@ -81,6 +83,7 @@ class Bank:
         print(colorama.Fore.RED + "Good Luck! Bye")
         cur.close()
         sys.exit()
+
 
 if __name__ == "__main__":
     start_sys = Bank()
