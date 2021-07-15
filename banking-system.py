@@ -41,15 +41,69 @@ class Bank:
                    'Quit']
 
         choice = enquiries.choose('', options)
+        if choice == 'Balance':
+            print("Your balance: " + colorama.Fore.YELLOW + str(self.balance()))
+            self.user_greeting()
+        elif choice == 'Add income':
+            self.add_income()
+            self.user_greeting()
+        elif choice == 'Do Transfer':
+            pass
+        elif choice == 'Close account':
+            pass
+        elif choice == 'Log Out':
+            pass
+        else:
+            seld.exit_the_program()
 
     def balance(self):
-        pass
+        cur.execute("SELECT balance FROM card WHERE id = (?)", (self.id_in_system))
+        balance = cur.fetchone()
+        return balance[0]
+
 
     def add_income(self):
-        pass
+        print("Enter income:")
+        incom = int(input("> "))
+        cur.execute("UPDATE card SET balance = balance + ? WHERE id=?", (incom, self.id_in_system[0]))
+        conn.commit()
+        print(colorama.Fore.GREEN + "Bank account has been successfully funded!\n")
 
     def do_transfer(self):
-        pass
+        cur.execute("SELECT number FROM card WHERE id = (?)", self.id_in_system)
+        verification_numb = cur.fetchone()
+        cur.execute("SELECT balance FROM card WHERE id = (?)", self.id_in_system)
+        your_balance = cur.fetchone()
+
+        print("Transfer \nEnter card number:")
+        transf = input(">")
+
+        # Verfication card
+        if luhn.luhn_valid(transf):
+            if any(transf in i for i in self.banking_data):
+                if transf == verification_numb:
+                    print(colorama.Fore.RED + "You can't transfer money to the same account!")
+                else:
+                    print("Enter how much money you want to transfer:")
+                    money = int(input(">"))
+                    if money > your_balance[0]:
+                        print(colorama.Fore.RED + "Not enough money!")
+                        user_menu()
+                    else:
+                        cur.execute("SELECT id FROM card WHERE number = (?)", (transf,))
+                        id_transfer = cur.fetchone()
+                        cur.execute("UPDATE card SET balance = balance + ? WHERE id = ?", (money, id_transfer[0]))
+                        cur.execute("UPDATE card SET balance = balance - ? WHERE id = ?",
+                                    (money, Banking.id_in_system[0]))
+                        print(colorama.Fore.GREEN + "Success!")
+                        conn.commit()
+                        self.user_greeting()
+            else:
+                print(colorama.Fore.RED + "Such a card does not exist.")
+                self.user_greeting()
+        else:
+            print(colorama.Fore.RED + "Probably you made a mistake in the card number. Please try again!")
+            self.user_greeting()
 
     def delete_account(self):
         pass
