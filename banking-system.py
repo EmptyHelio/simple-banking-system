@@ -17,7 +17,7 @@ class Bank:
 
     def greeting(self):
         options = ['Create an account', 'Log into account', 'Exit']
-        choice = enquiries.choose('Welcome to the banking system! Choose one of these options:', options)
+        choice = enquiries.choose('', options)
         if choice == 'Create an account':
             self.create_user()
         elif choice == 'Log into account':
@@ -36,8 +36,10 @@ class Bank:
         self.user_card_pin = str(random.randint(0000, 9999))
         self.create_bank_table()
         self.data_entry()
-        print("Your card number : " + colorama.Fore.YELLOW + self.user_card_number)
-        print(colorama.Style.RESET_ALL + "Your card pin    : " + colorama.Fore.YELLOW +self.user_card_pin)
+
+        print(colorama.Fore.GREEN + "Account has been created!")
+        print(colorama.Style.RESET_ALL + "Your card number : " + colorama.Fore.YELLOW + self.user_card_number)
+        print(colorama.Style.RESET_ALL + "Your card pin    : " + colorama.Fore.YELLOW +self.user_card_pin + colorama.Style.RESET_ALL + '\n')
 
 
     def luhn_create_chksum(self, card_num):
@@ -77,7 +79,6 @@ class Bank:
     def data_entry(self):
         cur.execute("INSERT INTO card (number, pin) VALUES(?, ?)", (self.user_card_number, self.user_card_pin))
         conn.commit()
-        cur.close()
 
     def exit_the_program(self):
         print(colorama.Fore.RED + "Good Luck! Bye")
@@ -87,4 +88,6 @@ class Bank:
 
 if __name__ == "__main__":
     start_sys = Bank()
-    start_sys.greeting()
+    print("Welcome to the banking system! Choose one of these options:")
+    while True:
+        start_sys.greeting()
