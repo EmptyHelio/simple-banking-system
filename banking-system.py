@@ -4,6 +4,7 @@ import random
 import sys
 import sqlite3
 import getpass
+from functools import reduce
 
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
@@ -48,9 +49,9 @@ class Bank:
             self.add_income()
             self.user_greeting()
         elif choice == 'Do Transfer':
-            pass
+            self.do_transfer()
         elif choice == 'Close account':
-            pass
+            self.delete_account()
         elif choice == 'Log Out':
             pass
         else:
@@ -79,7 +80,7 @@ class Bank:
         transf = input(">")
 
         # Verfication card
-        if luhn.luhn_valid(transf):
+        if self.luhn_valid(transf):
             if any(transf in i for i in self.banking_data):
                 if transf == verification_numb:
                     print(colorama.Fore.RED + "You can't transfer money to the same account!")
@@ -87,26 +88,29 @@ class Bank:
                     print("Enter how much money you want to transfer:")
                     money = int(input(">"))
                     if money > your_balance[0]:
-                        print(colorama.Fore.RED + "Not enough money!")
-                        user_menu()
+                        print(colorama.Fore.RED + "Not enough money!\n")
+                        self.user_greeting()
                     else:
                         cur.execute("SELECT id FROM card WHERE number = (?)", (transf,))
                         id_transfer = cur.fetchone()
                         cur.execute("UPDATE card SET balance = balance + ? WHERE id = ?", (money, id_transfer[0]))
                         cur.execute("UPDATE card SET balance = balance - ? WHERE id = ?",
-                                    (money, Banking.id_in_system[0]))
-                        print(colorama.Fore.GREEN + "Success!")
+                                    (money, self.id_in_system[0]))
+                        print(colorama.Fore.GREEN + "Money transferred successfully!\n")
                         conn.commit()
                         self.user_greeting()
             else:
-                print(colorama.Fore.RED + "Such a card does not exist.")
+                print(colorama.Fore.RED + "Such a card does not exist.\n")
                 self.user_greeting()
         else:
-            print(colorama.Fore.RED + "Probably you made a mistake in the card number. Please try again!")
+            print(colorama.Fore.RED + "Probably you made a mistake in the card number. Please try again!\n")
             self.user_greeting()
 
     def delete_account(self):
-        pass
+        cur.execute("DELETE FROM card WHERE id = ?", (self.id_in_system[0],))
+        print(colorama.Fore.RED + "The account has been closed!\n" + colorama.Style.RESET_ALL)
+        conn.commit()
+
 
     def create_user(self):
         random.seed()
@@ -159,6 +163,14 @@ class Bank:
         for i in range(10):
             if (checksum + i) % 10 == 0:
                 return i
+
+    def luhn_valid(self, code):
+        LOOKUP = (0, 2, 4, 6, 8, 1, 3, 5, 7, 9)
+        code = reduce(str.__add__, filter(str.isdigit, code))
+        evens = sum(int(i) for i in code[-1::-2])
+        odds = sum(LOOKUP[int(i)] for i in code[-2::-2])
+
+        return (evens + odds) % 10 == 0
 
 
     def create_bank_table(self):
