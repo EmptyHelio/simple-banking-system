@@ -3,46 +3,88 @@ import colorama
 import random
 import sys
 import sqlite3
+import getpass
+
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
 
 
 class Bank:
-
+    banking_data = None
     def __init__(self):
-       self.user_balance = 0
-       self.user_card_number = 0
-       self.user_card_pin = 0
-       self.user_luhn_checksum = 0
+        self.user_balance = 0
+        self.user_card_number = 0
+        self.user_card_pin = 0
+        self.user_luhn_checksum = 0
+        self.id_in_system = 0
 
-    def greeting(self):
-        options = ['Create an account', 'Log into account', 'Exit']
+    def main_greeting(self):
+        options = ['Create an account', 'Log Into account', 'Quit']
         choice = enquiries.choose('', options)
+
         if choice == 'Create an account':
             self.create_user()
-        elif choice == 'Log into account':
-            print(colorama.Fore.GREEN + "You are successfully logged in")
+        elif choice == 'Log Into account':
+            self.login_user()
         else:
             if enquiries.confirm('Do you really want to exit the program?'):
                 self.exit_the_program()
             else:
                 self.greeting()
 
+    def user_greeting(self):
+        options = ['Balance',
+                   'Add income',
+                   'Do Transfer',
+                   'Close account',
+                   'Log Out',
+                   'Quit']
+
+        choice = enquiries.choose('', options)
+
+    def balance(self):
+        pass
+
+    def add_income(self):
+        pass
+
+    def do_transfer(self):
+        pass
+
+    def delete_account(self):
+        pass
+
     def create_user(self):
         random.seed()
-        self.user_card_number = "400000" + str(random.randint(000000000, 999999999))
-        self.user_luhn_checksum = self.luhn_create_chksum(self.user_card_number)
+        self.user_card_number = "400000" + str(random.randint(100000000, 999999999))
+        self.user_luhn_checksum = self.create_chksum_for_card(self.user_card_number)
         self.user_card_number += str(self.user_luhn_checksum)
         self.user_card_pin = str(random.randint(0000, 9999))
         self.create_bank_table()
-        self.data_entry()
+        self.data_entry_card()
 
         print(colorama.Fore.GREEN + "Account has been created!")
         print(colorama.Style.RESET_ALL + "Your card number : " + colorama.Fore.YELLOW + self.user_card_number)
         print(colorama.Style.RESET_ALL + "Your card pin    : " + colorama.Fore.YELLOW +self.user_card_pin + colorama.Style.RESET_ALL + '\n')
 
+    def login_user(self):
+        self.data_read_card()
+        Bank.banking_data = cur.fetchall()
+        print("Enter your card number")
+        card = input("> ")
+        print("Enter your pin")
+        pin = getpass.getpass('> ')
+        if (any(card in i for i in Bank.banking_data)) and (any(pin in i for i in Bank.banking_data)):
+            cur.execute("SELECT id FROM card WHERE number =(?)", (card,))
+            self.id_in_system = cur.fetchone()
 
-    def luhn_create_chksum(self, card_num):
+            print(colorama.Fore.GREEN + "You have successfully logged in!\n" + colorama.Style.RESET_ALL)
+            self.user_greeting()
+        else:
+            print(colorama.Fore.RED + "Wrong card or PIN!\n" + colorama.Style.RESET_ALL)
+
+
+    def create_chksum_for_card(self, card_num):
         def digits_of(n):
             return [int(d) for d in str(n)]
 
@@ -65,9 +107,6 @@ class Bank:
                 return i
 
 
-    def login_user(self):
-        pass
-
     def create_bank_table(self):
         cur.execute("""CREATE TABLE IF NOT EXISTS card(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,9 +115,14 @@ class Bank:
         balance INTEGER DEFAULT 0);
         """)
 
-    def data_entry(self):
+    def data_entry_card(self):
         cur.execute("INSERT INTO card (number, pin) VALUES(?, ?)", (self.user_card_number, self.user_card_pin))
         conn.commit()
+
+    def data_read_card(self):
+        cur.execute("SELECT number, pin FROM card;")
+
+
 
     def exit_the_program(self):
         print(colorama.Fore.RED + "Good Luck! Bye")
@@ -88,6 +132,6 @@ class Bank:
 
 if __name__ == "__main__":
     start_sys = Bank()
-    print("Welcome to the banking system! Choose one of these options:")
+    print(colorama.Fore.MAGENTA + "Welcome to the banking system! Choose one of these options:" + colorama.Style.RESET_ALL)
     while True:
-        start_sys.greeting()
+        start_sys.main_greeting()
