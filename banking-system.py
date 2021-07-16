@@ -119,7 +119,7 @@ class Bank:
         self.user_card_number = "400000" + str(random.randint(100000000, 999999999))
         self.user_luhn_checksum = self.create_chksum_for_card(self.user_card_number)
         self.user_card_number += str(self.user_luhn_checksum)
-        self.user_card_pin = str(random.randint(0000, 9999))
+        self.user_card_pin = str(random.randint(1000, 9999))
         self.create_bank_table()
         self.data_entry_card()
 
