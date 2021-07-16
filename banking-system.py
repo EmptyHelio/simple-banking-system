@@ -6,6 +6,7 @@ import sqlite3
 import getpass
 from functools import reduce
 
+#connect database
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
 
@@ -20,6 +21,7 @@ class Bank:
         self.id_in_system = 0
 
     def main_greeting(self):
+        #create interactive menu
         options = ['Create an account', 'Log Into account', 'Quit']
         choice = enquiries.choose('', options)
 
@@ -55,7 +57,7 @@ class Bank:
         elif choice == 'Log Out':
             pass
         else:
-            seld.exit_the_program()
+            self.exit_the_program()
 
     def balance(self):
         cur.execute("SELECT balance FROM card WHERE id = (?)", (self.id_in_system))
