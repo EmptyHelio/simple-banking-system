@@ -3,20 +3,12 @@ import colorama
 import random
 import sys
 import sqlite3
-<<<<<<< HEAD
 import getpass
 from functools import reduce
 
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
 
-=======
-conn = sqlite3.connect('card.s3db')
-cur = conn.cursor()
-
-
-class Bank:
->>>>>>> deb1ac2 (Added some colors to the menu and an exit condition)
 
 class Bank:
     banking_data = None
@@ -111,7 +103,6 @@ class Bank:
                 print(colorama.Fore.RED + "Such a card does not exist.\n")
                 self.user_greeting()
         else:
-<<<<<<< HEAD
             print(colorama.Fore.RED + "Probably you made a mistake in the card number. Please try again!\n")
             self.user_greeting()
 
@@ -120,12 +111,6 @@ class Bank:
         print(colorama.Fore.RED + "The account has been closed!\n" + colorama.Style.RESET_ALL)
         conn.commit()
 
-=======
-            if enquiries.confirm('Do you really want to exit the program?'):
-                self.exit_the_program()
-            else:
-                self.greeting()
->>>>>>> deb1ac2 (Added some colors to the menu and an exit condition)
 
     def create_user(self):
         random.seed()
@@ -134,7 +119,6 @@ class Bank:
         self.user_card_number += str(self.user_luhn_checksum)
         self.user_card_pin = str(random.randint(0000, 9999))
         self.create_bank_table()
-<<<<<<< HEAD
         self.data_entry_card()
 
         print(colorama.Fore.GREEN + "Account has been created!")
@@ -156,12 +140,10 @@ class Bank:
             self.user_greeting()
         else:
             print(colorama.Fore.RED + "Wrong card or PIN!\n" + colorama.Style.RESET_ALL)
-=======
+
         self.data_entry()
         print("Your card number : " + colorama.Fore.YELLOW + self.user_card_number)
         print(colorama.Style.RESET_ALL + "Your card pin    : " + colorama.Fore.YELLOW +self.user_card_pin)
->>>>>>> deb1ac2 (Added some colors to the menu and an exit conditiong)
-
 
     def create_chksum_for_card(self, card_num):
         def digits_of(n):
