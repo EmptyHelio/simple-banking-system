@@ -12,6 +12,6 @@ To install and run the program, you need:
   On Unix:
   source \*name venv*\/bin/activate
 
-3)install requirements.txt
+3) install requirements.txt
 
   pip install -r requirements.txt
